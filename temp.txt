@@ -1,0 +1,74 @@
+<div class="modal fade" id="kirimUlangTahun" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Kirim Ulang Tahun</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= base_url('pesan/kirim_wa/0') ?>" method="post">
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Bulk</th>
+                                <th>Nama</th>
+                                <th>Tanggal lahir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($ultah as $key => $value) : ?>
+                                <?php
+                                /// Menghitung ulang tahun mendatang
+                                $tgl_lahir = new DateTime($value->tgl_lahir);
+                                $ulang_tahun_depan = new DateTime(date('Y') . '-' . $tgl_lahir->format('m-d'));
+
+                                // Jika tanggal ulang tahun sudah berlalu pada tahun ini, tambahkan satu tahun ke tanggal ulang tahun mendatang
+                                if ($ulang_tahun_depan < new DateTime()) {
+                                    $ulang_tahun_depan->modify('+1 year');
+                                }
+
+                                // Menghitung jumlah hari antara tanggal lahir dan ulang tahun mendatang
+                                $diff = $ulang_tahun_depan->diff(new DateTime());
+                                $diffDays = $diff->days;
+
+                                // Membuat pesan yang sesuai berdasarkan jumlah hari
+                                if ($diffDays == 0) {
+                                    $message = "hari ini";
+                                } elseif ($diffDays == 1) {
+                                    $message = "besok";
+                                } else {
+                                    $message = ($diffDays + 1) . " hari lagi"; // Mengurangi 1 hari karena hari ini sudah dihitung
+                                }
+                                ?>
+                                <tr>
+                                    <td>
+                                        <input class="form-check-input" type="checkbox" name="notelp[<?= $key ?>]" id="" value="<?= $value->notelp ?>">
+                                        <input type="hidden" name="nama[<?= $key ?>]" value="<?= $value->nama ?>">
+                                    </td>
+                                    <td><?= $value->nama ?></td>
+                                    <td><?= date('d F Y', strtotime($value->tgl_lahir)) ?> - <?= $message ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">
+                                    <select name="template" class="form-control" id="" required>
+                                        <option value="" disabled selected>Pilih Template Pesan</option>
+                                        <?php foreach ($template as $k => $v) : ?>
+                                            <option value="<?= $v->text ?>"><?= $v->type ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Kirim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
